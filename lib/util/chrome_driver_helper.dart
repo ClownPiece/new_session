@@ -58,17 +58,10 @@ class ChromeDriverHelper {
           if (Platform.isMacOS) {
             print("Attempting to remove quarantine attribute from $filePath");
 
-            // Using Process.run and checking result
-            final ProcessResult result = await Process.run(
-                "xattr", ["-d", "com.apple.quarantine", filePath]);
-            print("xattr output: ${result.stdout}");
-            if (result.stderr.isNotEmpty) {
-              print("xattr error: ${result.stderr}");
-            }
-
             // Using shell command as an alternative
             final ProcessResult shellResult = await Process.run(
-                'sh', ['-c', 'xattr -d com.apple.quarantine $filePath']);
+                'sh', ['-c', 'xattr -d com.apple.quarantine "$filePath"'],
+                environment: {'PATH': '/usr/bin:/bin:/usr/sbin:/sbin'});
             print("Shell xattr output: ${shellResult.stdout}");
             if (shellResult.stderr.isNotEmpty) {
               print("Shell xattr error: ${shellResult.stderr}");
