@@ -55,13 +55,11 @@ class ChromeDriverHelper {
           final outFile = File(filePath);
           await outFile.create(recursive: true);
           await outFile.writeAsBytes(file.content as List<int>);
-          if(Platform.isMacOS) {
-            final ProcessResult result =  await Process.run("pwd", []);
-            print(result.stdout.toString());
-            await Process.run("xattr", ["-d com.apple.quarantine $filePath"]);
+          if (Platform.isMacOS) {
+            await Process.run(
+                "xattr", ["-d", "com.apple.quarantine", filePath]);
             await Process.run('chmod', ['+x', filePath]);
           }
-
         }
       }
 
