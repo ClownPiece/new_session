@@ -33,8 +33,8 @@ class ChromeDriverHelper {
       final driverInfo = jsonDecode(res.body);
       final List drivers =
           driverInfo["milestones"][chromeVersion]["downloads"]["chromedriver"];
-      final url =
-          drivers.firstWhere((e) => e["platform"] == _getPlatform())["url"];
+      final platform = await _getPlatform();
+      final url = drivers.firstWhere((e) => e["platform"] == platform)["url"];
 
       // 크롬 드라이버 zip 파일 다운로드
       final response = await http.get(Uri.parse(url));
