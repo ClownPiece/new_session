@@ -49,12 +49,19 @@ class ChromeDriverHelper {
         final filename = file.name;
         if (filename.contains("LICENSE")) continue;
 
-        final filePath = path.join(destinationDirectory, "chromedriver");
+        final filePath = path.join(destinationDirectory, "chromedriver").trim();
 
         if (file.isFile) {
           final outFile = File(filePath);
           await outFile.create(recursive: true);
           await outFile.writeAsBytes(file.content as List<int>);
+          if(Platform.isMacOS) {
+            final ProcessResult result =  await Process.run("pwd", []);
+            print(result.stdout.toString());
+            await Process.run("xattr", ["-d com.apple.quarantine $filePath"]);
+            await Process.run('chmod', ['+x', filePath]);
+          }
+
         }
       }
 
@@ -119,10 +126,6 @@ class ChromeDriverHelper {
           },
         );
       } else {
-        try {
-          // 파일의 실행 권한을 수정
-          await Process.run('chmod', ['+x', "./chromedriver"]);
-        } catch (e) {}
         final driverCheck = await Process.start('./chromedriver', ["-v"]);
         await driverCheck.stdout.transform(utf8.decoder).forEach(
           (element) {
@@ -139,6 +142,7 @@ class ChromeDriverHelper {
           .substring(0, chromeDriverVersion.indexOf("."))
           .trim();
     } catch (e) {
+      print(e);
       return "";
     }
   }
