@@ -22,7 +22,6 @@ class ChromeDriverHelper {
     }
   }
 
-  /// 지정된 버전의 크롬 드라이버 다운로드
   static Future<void> downloadDriver(String chromeVersion) async {
     const driverInfoUrl =
         "https://googlechromelabs.github.io/chrome-for-testing/latest-versions-per-milestone-with-downloads.json";
@@ -55,10 +54,27 @@ class ChromeDriverHelper {
           final outFile = File(filePath);
           await outFile.create(recursive: true);
           await outFile.writeAsBytes(file.content as List<int>);
+
           if (Platform.isMacOS) {
-            await Process.run('chmod', ['+x', filePath]);
-            await Process.run(
+            print("Attempting to remove quarantine attribute from $filePath");
+
+            // Using Process.run and checking result
+            final ProcessResult result = await Process.run(
                 "xattr", ["-d", "com.apple.quarantine", filePath]);
+            print("xattr output: ${result.stdout}");
+            if (result.stderr.isNotEmpty) {
+              print("xattr error: ${result.stderr}");
+            }
+
+            // Using shell command as an alternative
+            final ProcessResult shellResult = await Process.run(
+                'sh', ['-c', 'xattr -d com.apple.quarantine $filePath']);
+            print("Shell xattr output: ${shellResult.stdout}");
+            if (shellResult.stderr.isNotEmpty) {
+              print("Shell xattr error: ${shellResult.stderr}");
+            }
+
+            await Process.run('chmod', ['+x', filePath]);
           }
         }
       }
