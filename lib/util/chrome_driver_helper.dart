@@ -26,7 +26,7 @@ class ChromeDriverHelper {
   static Future<void> downloadDriver(String chromeVersion) async {
     const driverInfoUrl =
         "https://googlechromelabs.github.io/chrome-for-testing/latest-versions-per-milestone-with-downloads.json";
-  
+
     final destinationDirectory = await AppDirectoryHelper.getAppDirectory();
     try {
       // 최신 크롬드라이버 버전 다운로드 URL GET
@@ -61,7 +61,14 @@ class ChromeDriverHelper {
           if (Platform.isMacOS) {
             await Process.run('chmod', ['+x', filePath]);
             final ProcessResult shellResult = await Process.run(
-                'xattr', ['-d', 'com.apple.quarantine', filePath]);
+                'sudo',
+                [
+                  'xattr',
+                  '-dr',
+                  'com.apple.quarantine',
+                  destinationDirectory.path
+                ],
+                runInShell: true);
             if (kDebugMode) {
               print("Shell xattr output: ${shellResult.stdout}");
             }
