@@ -41,5 +41,8 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
+	<key>NSAppleEventsUsageDescription</key>
+	<string>크롬 드라이버 프로세스 실행을 위한 권한요청.</string>
+
 </dict>
 </plist>
