@@ -5,6 +5,7 @@ import 'package:network_tools/network_tools.dart';
 import 'package:session_free_chrome/component/new_session.dart';
 import 'package:session_free_chrome/exception/chrome_version_exception.dart';
 import 'package:session_free_chrome/util/chrome_driver_helper.dart';
+import 'package:path_provider/path_provider.dart';
 
 import 'package:window_manager/window_manager.dart';
 
@@ -24,8 +25,8 @@ void main() async {
     await windowManager.focus();
   });
 
-  const appDocDirectory = "./doc/";
-  await configureNetworkTools(appDocDirectory, enableDebugging: true);
+  final appDocDirectory = await getApplicationDocumentsDirectory();
+  await configureNetworkTools(appDocDirectory.path, enableDebugging: true);
 
   runApp(const MyApp());
 }
