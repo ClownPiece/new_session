@@ -27,8 +27,6 @@ void main() async {
   });
 
   try {
-
-
     runApp(const MyApp());
   } catch (e) {
     runApp(MaterialApp(
@@ -106,7 +104,6 @@ class _MyControllerState extends State<MyController> with WindowListener {
       setState(() {
         _msg = null;
       });
-      
     } on ChromeVersionException catch (e) {
       _msg = e.toString();
     } catch (e) {
@@ -116,6 +113,10 @@ class _MyControllerState extends State<MyController> with WindowListener {
     setState(() {
       _init = true;
     });
+  }
+
+  void setMsg(String msg) {
+    _msg = msg;
   }
 
   @override

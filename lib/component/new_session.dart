@@ -2,9 +2,15 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:session_free_chrome/util/chrome_driver_helper.dart';
 
-class NewSession extends StatelessWidget {
+class NewSession extends StatefulWidget {
   const NewSession({super.key});
 
+  @override
+  State<NewSession> createState() => _NewSessionState();
+}
+
+class _NewSessionState extends State<NewSession> {
+  String stateMsg = "새 세션";
   @override
   Widget build(BuildContext context) {
     return Expanded(
@@ -23,12 +29,15 @@ class NewSession extends StatelessWidget {
             if (kDebugMode) {
               print(e);
             }
+            setState(() {
+              stateMsg = e.toString();
+            });
           }
         },
-        child: const Center(
+        child: Center(
           child: Text(
-            "새 세션",
-            style: TextStyle(fontSize: 20, color: Color(0xffffffff)),
+            stateMsg,
+            style: const TextStyle(fontSize: 20, color: Color(0xffffffff)),
           ),
         ),
       ),
