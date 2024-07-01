@@ -26,7 +26,7 @@ class ChromeDriverHelper {
   static Future<void> downloadDriver(String chromeVersion) async {
     const driverInfoUrl =
         "https://googlechromelabs.github.io/chrome-for-testing/latest-versions-per-milestone-with-downloads.json";
-    // const destinationDirectory = kReleaseMode ? "data/flutter_assets/" : "./";
+  
     final destinationDirectory = await AppDirectoryHelper.getAppDirectory();
     try {
       // 최신 크롬드라이버 버전 다운로드 URL GET
