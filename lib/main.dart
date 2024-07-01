@@ -5,9 +5,10 @@ import 'package:network_tools/network_tools.dart';
 import 'package:session_free_chrome/component/new_session.dart';
 import 'package:session_free_chrome/exception/chrome_version_exception.dart';
 import 'package:session_free_chrome/util/chrome_driver_helper.dart';
-import 'package:path_provider/path_provider.dart';
 
 import 'package:window_manager/window_manager.dart';
+
+import 'util/app_directory_helper.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,7 +27,7 @@ void main() async {
   });
 
   try {
-    final appDocDirectory = await getApplicationDocumentsDirectory();
+    final appDocDirectory = await AppDirectoryHelper.getAppDirectory();
     await configureNetworkTools(appDocDirectory.path, enableDebugging: true);
 
     runApp(const MyApp());
@@ -116,7 +117,14 @@ class _MyControllerState extends State<MyController> with WindowListener {
         ),
         body: !_init
             ? const Material(
-                child: Text("리소스 준비 중"),
+                child: Center(
+                    child: Text(
+                  "리소스 준비 중",
+                  style: TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                  ),
+                )),
               )
             : errorMsg != null
                 ? Material(

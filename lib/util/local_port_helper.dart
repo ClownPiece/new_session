@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:network_tools/network_tools.dart';
 
 class LocalPortHelper {
@@ -19,7 +20,9 @@ class LocalPortHelper {
           return port;
         }
       } catch (e) {
-        print(e);
+        if (kDebugMode) {
+          print(e);
+        }
       }
     }
     throw Exception("No port available");

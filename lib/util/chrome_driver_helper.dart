@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:archive/archive.dart';
 import 'package:path/path.dart' as path;
 import 'package:session_free_chrome/exception/chrome_version_exception.dart';
+import 'package:session_free_chrome/util/app_directory_helper.dart';
 import 'package:session_free_chrome/util/local_port_helper.dart';
 import 'package:webdriver/sync_io.dart';
 
@@ -25,7 +26,8 @@ class ChromeDriverHelper {
   static Future<void> downloadDriver(String chromeVersion) async {
     const driverInfoUrl =
         "https://googlechromelabs.github.io/chrome-for-testing/latest-versions-per-milestone-with-downloads.json";
-    const destinationDirectory = kReleaseMode ? "data/flutter_assets/" : "./";
+    // const destinationDirectory = kReleaseMode ? "data/flutter_assets/" : "./";
+    final destinationDirectory = await AppDirectoryHelper.getAppDirectory();
     try {
       // 최신 크롬드라이버 버전 다운로드 URL GET
       final res = await http.get(Uri.parse(driverInfoUrl));
@@ -48,7 +50,8 @@ class ChromeDriverHelper {
         final filename = file.name;
         if (filename.contains("LICENSE")) continue;
 
-        final filePath = path.join(destinationDirectory, "chromedriver").trim();
+        final filePath =
+            path.join(destinationDirectory.path, "chromedriver").trim();
 
         if (file.isFile) {
           final outFile = File(filePath);
@@ -56,25 +59,28 @@ class ChromeDriverHelper {
           await outFile.writeAsBytes(file.content as List<int>);
 
           if (Platform.isMacOS) {
-            print("Attempting to remove quarantine attribute from $filePath");
-
             await Process.run('chmod', ['+x', filePath]);
-            // Using shell command as an alternative
             final ProcessResult shellResult = await Process.run(
                 'xattr', ['-d', 'com.apple.quarantine', filePath]);
-            print("Shell xattr output: ${shellResult.stdout}");
-            if (shellResult.stderr.isNotEmpty) {
-              print("Shell xattr error: ${shellResult.stderr}");
+            if (kDebugMode) {
+              print("Shell xattr output: ${shellResult.stdout}");
             }
-
-            
+            if (shellResult.stderr.isNotEmpty) {
+              if (kDebugMode) {
+                print("Shell xattr error: ${shellResult.stderr}");
+              }
+            }
           }
         }
       }
 
-      print('파일이 성공적으로 압축 해제되었습니다.');
+      if (kDebugMode) {
+        print('파일이 성공적으로 압축 해제되었습니다.');
+      }
     } catch (e) {
-      print('에러 발생: $e');
+      if (kDebugMode) {
+        print('에러 발생: $e');
+      }
       rethrow;
     }
   }
@@ -123,23 +129,16 @@ class ChromeDriverHelper {
   static Future<String> _getChromeDriverVersion() async {
     try {
       String chromeDriverVersion = "";
-      if (kReleaseMode) {
-        final driverCheck =
-            await Process.start('data/flutter_assets/chromedriver', ["-v"]);
 
-        await driverCheck.stdout.transform(utf8.decoder).forEach(
-          (element) {
-            chromeDriverVersion += element;
-          },
-        );
-      } else {
-        final driverCheck = await Process.start('./chromedriver', ["-v"]);
-        await driverCheck.stdout.transform(utf8.decoder).forEach(
-          (element) {
-            chromeDriverVersion += element;
-          },
-        );
-      }
+      final appDirectory = await AppDirectoryHelper.getAppDirectory();
+      final driverCheck =
+          await Process.start('${appDirectory.path}/chromedriver', ["-v"]);
+
+      await driverCheck.stdout.transform(utf8.decoder).forEach(
+        (element) {
+          chromeDriverVersion += element;
+        },
+      );
 
       chromeDriverVersion =
           chromeDriverVersion.replaceFirst("ChromeDriver", "");
@@ -149,7 +148,9 @@ class ChromeDriverHelper {
           .substring(0, chromeDriverVersion.indexOf("."))
           .trim();
     } catch (e) {
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
       return "";
     }
   }
@@ -221,8 +222,8 @@ class ChromeWindow {
 
   static Future<ChromeWindow> create(int port) async {
     final window = ChromeWindow._create(port);
-    const chromedriverPath =
-        kReleaseMode ? 'data/flutter_assets/chromedriver' : './chromedriver';
+    final appDirectory = await AppDirectoryHelper.getAppDirectory();
+    final chromedriverPath = '${appDirectory.path}/chromedriver';
 
     window.process = await Process.start(
       chromedriverPath,

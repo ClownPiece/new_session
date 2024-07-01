@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:session_free_chrome/util/chrome_driver_helper.dart';
 
@@ -18,7 +19,11 @@ class NewSession extends StatelessWidget {
 
             final driver = chromeWindow.driver;
             driver.get("https://google.com");
-          } catch (e) {}
+          } catch (e) {
+            if (kDebugMode) {
+              print(e);
+            }
+          }
         },
         child: const Center(
           child: Text(
