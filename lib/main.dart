@@ -27,8 +27,7 @@ void main() async {
   });
 
   try {
-    final appDocDirectory = await AppDirectoryHelper.getAppDirectory();
-    await configureNetworkTools(appDocDirectory.path, enableDebugging: true);
+
 
     runApp(const MyApp());
   } catch (e) {
@@ -65,7 +64,7 @@ class MyController extends StatefulWidget {
 
 class _MyControllerState extends State<MyController> with WindowListener {
   bool _init = false;
-  String? errorMsg;
+  String? _msg;
   @override
   void initState() {
     super.initState();
@@ -97,11 +96,21 @@ class _MyControllerState extends State<MyController> with WindowListener {
 
   Future<void> windowsInit() async {
     try {
+      final appDocDirectory = await AppDirectoryHelper.getAppDirectory();
+      await configureNetworkTools(appDocDirectory.path, enableDebugging: true);
+      setState(() {
+        _msg = "networkTool 완료";
+      });
+
       await ChromeDriverHelper.compareAndDownLoadChromeDriver();
+      setState(() {
+        _msg = null;
+      });
+      
     } on ChromeVersionException catch (e) {
-      errorMsg = e.toString();
+      _msg = e.toString();
     } catch (e) {
-      errorMsg = e.toString();
+      _msg = e.toString();
     }
 
     setState(() {
@@ -126,10 +135,10 @@ class _MyControllerState extends State<MyController> with WindowListener {
                   ),
                 )),
               )
-            : errorMsg != null
+            : _msg != null
                 ? Material(
                     child: Center(
-                    child: Text(errorMsg!),
+                    child: Text(_msg!),
                   ))
                 : const Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
