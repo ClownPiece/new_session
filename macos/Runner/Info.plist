@@ -36,5 +36,10 @@
 	</array>
 	<key>NSFileSystemUsageDescription</key>
 	<string>앱이 파일 시스템에 접근하려면 이 권한이 필요합니다.</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+	</dict>
 </dict>
 </plist>
