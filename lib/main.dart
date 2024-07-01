@@ -24,10 +24,15 @@ void main() async {
     await windowManager.focus();
   });
 
+try {
   const appDocDirectory = "./doc/";
   await configureNetworkTools(appDocDirectory, enableDebugging: true);
 
-  runApp(const MyApp());
+  runApp(const MyApp());  
+} catch (e) {
+  runApp(MaterialApp(home: Material(child: Text(e.toString()),),));
+}
+
 }
 
 class MyApp extends StatelessWidget {
@@ -90,6 +95,8 @@ class _MyControllerState extends State<MyController> with WindowListener {
       await ChromeDriverHelper.compareAndDownLoadChromeDriver();
     } on ChromeVersionException catch (e) {
       errorMsg = e.toString();
+    } catch(e){
+      errorMsg = e.toString();
     }
 
     setState(() {
@@ -104,11 +111,11 @@ class _MyControllerState extends State<MyController> with WindowListener {
           title: Text(widget.title),
         ),
         body: !_init
-            ? Container()
+            ? const Material(child: Text("리소스 준비 중"),)
             : errorMsg != null
-                ? Center(
+                ? Material(child: Center(
                     child: Text(errorMsg!),
-                  )
+                  ))
                 : const Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[

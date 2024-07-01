@@ -61,8 +61,7 @@ class ChromeDriverHelper {
             await Process.run('chmod', ['+x', filePath]);
             // Using shell command as an alternative
             final ProcessResult shellResult = await Process.run(
-                'sh', ['-c', 'xattr -d com.apple.quarantine "$filePath"'],
-                environment: {'PATH': '/usr/bin:/bin:/usr/sbin:/sbin'});
+                'xattr', ['-d', 'com.apple.quarantine', filePath]);
             print("Shell xattr output: ${shellResult.stdout}");
             if (shellResult.stderr.isNotEmpty) {
               print("Shell xattr error: ${shellResult.stderr}");
