@@ -60,23 +60,7 @@ class ChromeDriverHelper {
 
           if (Platform.isMacOS) {
             await Process.run('chmod', ['+x', filePath]);
-            final ProcessResult shellResult = await Process.run(
-                'sudo',
-                [
-                  'xattr',
-                  '-dr',
-                  'com.apple.quarantine',
-                  destinationDirectory.path
-                ],
-                runInShell: true);
-            if (kDebugMode) {
-              print("Shell xattr output: ${shellResult.stdout}");
-            }
-            if (shellResult.stderr.isNotEmpty) {
-              if (kDebugMode) {
-                print("Shell xattr error: ${shellResult.stderr}");
-              }
-            }
+            await _signAndRemoveQuarantine(filePath);
           }
         }
       }
@@ -89,6 +73,32 @@ class ChromeDriverHelper {
         print('에러 발생: $e');
       }
       rethrow;
+    }
+  }
+
+  static Future<void> _signAndRemoveQuarantine(String filePath) async {
+    try {
+      // 코드 서명
+      final ProcessResult signResult =
+          await Process.run('codesign', ['--force', '--sign', '-', filePath]);
+      if (signResult.stderr.isNotEmpty) {
+        if (kDebugMode) {
+          print("Codesign error: ${signResult.stderr}");
+        }
+      }
+
+      // quarantine 제거
+      final ProcessResult quarantineResult =
+          await Process.run('xattr', ['-dr', 'com.apple.quarantine', filePath]);
+      if (quarantineResult.stderr.isNotEmpty) {
+        if (kDebugMode) {
+          print("Quarantine removal error: ${quarantineResult.stderr}");
+        }
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('코드 서명 및 quarantine 제거 에러: $e');
+      }
     }
   }
 
